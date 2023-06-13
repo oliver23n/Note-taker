@@ -16,7 +16,14 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const PORT = 3001;
+
+const fs = require('fs');
+const notes = require('./db/db.json')
+
 app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 app.get('/', (req,res) => {
     res.sendFile('/public/index.html');
@@ -24,6 +31,23 @@ app.get('/', (req,res) => {
 app.get('/notes', (req,res)=> {
     res.sendFile(path.join(__dirname ,'/public/notes.html'));
 })
+
+app.get('/api/notes',(req,res)=> {
+    res.status(200).json(notes);
+});
+
+app.post('/api/notes',(req,res) =>{
+    let response;
+    if(req.body && req.body.title && req.body.text){
+        response = {
+            status : 'succes',
+            data : req.body
+        }
+        res.status(201).json(response.data);
+    }
+
+})
+
 app.listen(PORT, ()=> {
     console.log(`listening to Port : ${PORT}`);
 })
