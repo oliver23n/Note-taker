@@ -1,12 +1,4 @@
-// GIVEN a note - taking application
-// WHEN I open the Note Taker
-// THEN I am presented with a landing page with a link to a notes page
-// WHEN I click on the link to the notes page
-// THEN I am presented with a page with existing notes listed in the left - hand column, plus empty fields to enter a new note title and the note’s text in the right - hand column
-// WHEN I enter a new note title and the note’s text
-// THEN a Save icon appears in the navigation at the top of the page
-// WHEN I click on the Save icon
-// THEN the new note I have entered is saved and appears in the left - hand column with the other existing notes
+
 // WHEN I click on an existing note in the list in the left - hand column
 // THEN that note appears in the right - hand column
 // WHEN I click on the Write icon in the navigation at the top of the page
@@ -16,6 +8,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const PORT = 3001;
+const uuid = require('./helpers/uuid');
 
 const fs = require('fs');
 const notes = require('./db/db.json')
@@ -37,14 +30,41 @@ app.get('/api/notes',(req,res)=> {
 });
 
 app.post('/api/notes',(req,res) =>{
-    let response;
-    if(req.body && req.body.title && req.body.text){
-        response = {
-            status : 'succes',
-            data : req.body
+
+    const {title, text} = req.body;
+    if(req.body && title && text){
+        const newNote = {
+            title,
+            text,
+            id:uuid()
+        };
+
+
+        fs.readFile('./db/db.json', (err,data) =>{
+            if(err){
+                console.error(err);
+            }else{
+                let json = JSON.parse(data);
+                json.push(newNote);
+                fs.writeFile('./db/db.json',JSON.stringify(json), (eror) => eror ? console.error(eror):console.log(`the note ${newNote} has been added to file`));
+            }});
+
+        const response = {
+            status:'success',
+            body: newNote
         }
-        res.status(201).json(response.data);
+        
+
+        res.status(201).json(newNote);
+    } else {
+        res.status(500).json('Error in posting review');
     }
+
+});
+
+app.delete('/api/notes/:id', (req,res) => {
+    const noteId = req.params.id;
+
 
 })
 
