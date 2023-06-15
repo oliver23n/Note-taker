@@ -46,7 +46,8 @@ app.post('/api/notes',(req,res) =>{
             }else{
                 let json = JSON.parse(data);
                 json.push(newNote);
-                fs.writeFile('./db/db.json',JSON.stringify(json), (eror) => eror ? console.error(eror):console.log(`the note ${newNote} has been added to file`));
+
+                fs.writeFile('./db/db.json',JSON.stringify(json), (eror) => eror ? console.error(eror):console.log(`the note ${JSON.stringify(newNote)} has been added to file`));
             }});
 
         const response = {
@@ -57,16 +58,42 @@ app.post('/api/notes',(req,res) =>{
 
         res.status(201).json(newNote);
     } else {
-        res.status(500).json('Error in posting review');
+        res.status(500).json('Error');
     }
 
 });
 
 app.delete('/api/notes/:id', (req,res) => {
     const noteId = req.params.id;
+    let index;
+    fs.readFile('./db/db.json', (err, data) => {
+        if (err) {
+            console.error(err);
+        } else {
+            let json = JSON.parse(data);
+            for(let i = 0; i<json.length; i++){
+                const currentId = json[i].id;
+                if(currentId === noteId){
+                    index = i;
+                };
+            };
+            json.splice(index,1);
+            fs.writeFile('./db/db.json', JSON.stringify(json), (eror) => eror ? console.error(eror) : console.log(`the note with the id of ${noteId} has been deleted`)); 
+        }
+    })
+    res.status(201).json("completed");
+
+    })
 
 
-})
+    // const allNotes = JSON.parse(notes);
+    // const noteToDelete = allNotes.find(el => el.id === noteId);
+    // const index = allNotes.indexOf(noteToDelete);
+
+    // allNotes.splice(index,1);
+
+    // fs.writeFile('./db/db.json',JSON.stringify(allNotes), (err) => err ? console.error(err) : console.log(`succesfylly deleted note with ${noteId} id`));
+
 
 app.listen(PORT, ()=> {
     console.log(`listening to Port : ${PORT}`);
