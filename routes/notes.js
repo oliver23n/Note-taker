@@ -5,32 +5,33 @@ const uuid = require('../helpers/uuid');
 
 
 
-router.get('/',(req,res)=> {
+router.get('/', (req, res) => {
 
     fs.readFile('./db/db.json', (err, data) => err ? console.error(err) : res.status(200).json(JSON.parse(data)));
 
-    });
+});
 
 router.post('/', (req, res) => {
 
-    const {title, text} = req.body;
-    if(req.body && title && text){
+    const { title, text } = req.body;
+    if (req.body && title && text) {
         const newNote = {
             title,
             text,
-            id:uuid()
+            id: uuid()
         };
 
 
-        fs.readFile('./db/db.json', (err,data) =>{
-            if(err){
+        fs.readFile('./db/db.json', (err, data) => {
+            if (err) {
                 console.error(err);
-            }else{
+            } else {
                 let json = JSON.parse(data);
                 json.push(newNote);
 
-                fs.writeFile('./db/db.json',JSON.stringify(json), (eror) => eror ? console.error(eror):console.log(`the note ${JSON.stringify(newNote)} has been added to file`));
-            }});
+                fs.writeFile('./db/db.json', JSON.stringify(json), (eror) => eror ? console.error(eror) : console.log(`the note ${JSON.stringify(newNote)} has been added to file`));
+            }
+        });
 
         res.status(201).json(newNote);
     } else {
